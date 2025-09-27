@@ -1,9 +1,19 @@
+import 'package:delivery_application/controller/login_controller.dart';
 import 'package:flutter/material.dart';
 import 'register_user.dart';
 import 'register_rider.dart';
 
-class LoginPage extends StatelessWidget {
+class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
+
+  @override
+  State<LoginPage> createState() => _LoginPageState();
+}
+
+class _LoginPageState extends State<LoginPage> {
+  final phoneController = TextEditingController();
+  final passwordController = TextEditingController();
+  final loginController = LoginController();
 
   @override
   Widget build(BuildContext context) {
@@ -50,7 +60,9 @@ class LoginPage extends StatelessWidget {
                       ),
                     ),
                     TextField(
+                      controller: phoneController, // ✅ bind controller
                       decoration: InputDecoration(
+                        hintText: "กรอกเบอร์โทร",
                         hintStyle: const TextStyle(color: Color(0xFF2E7D32)),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
@@ -83,8 +95,10 @@ class LoginPage extends StatelessWidget {
                       ),
                     ),
                     TextField(
+                      controller: passwordController, // ✅ bind controller
                       obscureText: true,
                       decoration: InputDecoration(
+                        hintText: "กรอกรหัสผ่าน",
                         hintStyle: const TextStyle(color: Color(0xFF2E7D32)),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
@@ -101,6 +115,7 @@ class LoginPage extends StatelessWidget {
                 ),
 
                 const SizedBox(height: 43),
+
                 // ปุ่มเข้าสู่ระบบ
                 SizedBox(
                   width: 300,
@@ -112,13 +127,48 @@ class LoginPage extends StatelessWidget {
                         borderRadius: BorderRadius.circular(20),
                       ),
                     ),
-                    onPressed: () {},
+                    onPressed: () async {
+                      final phone = phoneController.text.trim();
+                      final pass = passwordController.text.trim();
+
+                      if (phone.isEmpty || pass.isEmpty) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text("กรุณากรอกข้อมูลให้ครบ"),
+                          ),
+                        );
+                        return;
+                      }
+
+                      // ✅ เรียกใช้งาน controller login user
+                      final result = await loginController.loginUser(
+                        phone,
+                        pass,
+                      );
+
+                      if (result != null) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text("เข้าสู่ระบบสำเร็จ ✅")),
+                        );
+                        print(result); // ✅ แสดง token + ข้อมูล user
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              loginController.errorMessage ??
+                                  "เข้าสู่ระบบล้มเหลว",
+                            ),
+                          ),
+                        );
+                      }
+                    },
                     child: const Text(
                       "เข้าสู่ระบบ",
                       style: TextStyle(fontSize: 25, color: Colors.white),
                     ),
                   ),
                 ),
+
                 const SizedBox(height: 20),
 
                 // ลิงก์สมัครสมาชิก

@@ -19,11 +19,11 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(primarySwatch: Colors.deepOrange),
-      // home: const LoginPage(),
+      home: const LoginPage(),
       // home: const RegisterUserPage(),
       // home: const RegisterRiderPage(),
       // home: const ProfilePage(),
-      home: const HomePage(),
+      // home: const HomePage(),
       // home: const RiderPage(),
     );
   }

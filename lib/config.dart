@@ -1,0 +1,4 @@
+class Config {
+  static const String baseUrl = "http://192.168.88.243:3000";
+  // static const String baseUrl = "https://api-node-payment-lotto.onrender.com";
+}

@@ -1,8 +1,21 @@
-import 'package:delivery_application/service/login.dart';
+import 'package:delivery_application/controller/register_controller.dart';
 import 'package:flutter/material.dart';
+import 'login.dart'; // ✅ ไว้กลับไปหน้า LoginPage
 
-class RegisterUserPage extends StatelessWidget {
+class RegisterUserPage extends StatefulWidget {
   const RegisterUserPage({super.key});
+
+  @override
+  State<RegisterUserPage> createState() => _RegisterUserPageState();
+}
+
+class _RegisterUserPageState extends State<RegisterUserPage> {
+  final phoneController = TextEditingController();
+  final passwordController = TextEditingController();
+  final nameController = TextEditingController();
+  final profileImgController = TextEditingController();
+
+  final registerController = RegisterController();
 
   @override
   Widget build(BuildContext context) {
@@ -37,16 +50,33 @@ class RegisterUserPage extends StatelessWidget {
             ),
             const SizedBox(height: 30),
 
-            _buildInputField("เบอร์โทร", "เบอร์โทร"),
+            // เบอร์โทร
+            _buildInputField(
+              "เบอร์โทร",
+              "เบอร์โทร",
+              controller: phoneController,
+            ),
             const SizedBox(height: 15),
 
-            _buildInputField("รหัสผ่าน", "รหัสผ่าน", obscureText: true),
+            // รหัสผ่าน
+            _buildInputField(
+              "รหัสผ่าน",
+              "รหัสผ่าน",
+              obscureText: true,
+              controller: passwordController,
+            ),
             const SizedBox(height: 15),
 
-            _buildInputField("ชื่อ-สกุล", "ชื่อ"),
+            // ชื่อ-สกุล
+            _buildInputField("ชื่อ-สกุล", "ชื่อ", controller: nameController),
             const SizedBox(height: 15),
 
-            _buildUploadButton("รูป", "อัปโหลดรูป"),
+            // อัปโหลดรูป
+            _buildUploadButton(
+              "รูป",
+              "อัปโหลดรูป",
+              controller: profileImgController,
+            ),
             const SizedBox(height: 30),
 
             // ปุ่มสมัครสมาชิก
@@ -60,7 +90,33 @@ class RegisterUserPage extends StatelessWidget {
                     borderRadius: BorderRadius.circular(25),
                   ),
                 ),
-                onPressed: () {},
+                onPressed: () async {
+                  final ok = await registerController.registerUser(
+                    nameController.text.trim(),
+                    phoneController.text.trim(),
+                    passwordController.text.trim(),
+                    profileImg: profileImgController.text.trim(),
+                  );
+                  if (ok) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text("สมัครสมาชิกสำเร็จ ✅")),
+                    );
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const LoginPage(),
+                      ),
+                    );
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          registerController.errorMessage ?? "สมัครไม่สำเร็จ",
+                        ),
+                      ),
+                    );
+                  }
+                },
                 child: const Text(
                   "สมัครสมาชิก",
                   style: TextStyle(fontSize: 18, color: Colors.white),
@@ -92,8 +148,10 @@ class RegisterUserPage extends StatelessWidget {
     String label,
     String hint, {
     bool obscureText = false,
+    TextEditingController? controller,
   }) {
     return TextField(
+      controller: controller,
       obscureText: obscureText,
       decoration: InputDecoration(
         labelText: label,
@@ -106,7 +164,11 @@ class RegisterUserPage extends StatelessWidget {
     );
   }
 
-  Widget _buildUploadButton(String label, String text) {
+  Widget _buildUploadButton(
+    String label,
+    String text, {
+    TextEditingController? controller,
+  }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -125,8 +187,12 @@ class RegisterUserPage extends StatelessWidget {
               ),
               side: const BorderSide(color: Colors.grey),
             ),
-            onPressed: () {
-              // TODO: เพิ่มฟังก์ชันเลือกไฟล์
+            onPressed: () async {
+              // TODO: ถ้ามีระบบเลือกไฟล์จริง ค่อยเปลี่ยน logic
+              // ตอนนี้ใช้ text field กรอก URL/ชื่อไฟล์
+              if (controller != null) {
+                controller.text = "user_profile.png";
+              }
             },
             icon: const Icon(Icons.cloud_upload_outlined, color: Colors.grey),
             label: Text(text, style: const TextStyle(color: Colors.grey)),
